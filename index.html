@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WealthWise - Personal Finance Advisor Bot</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body class="dark-theme">
     <div class="app-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="brand">
                 <div class="brand-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
                 </div>
                 <div class="brand-text">
                     <h2>WealthWise</h2>
@@ -25,22 +32,67 @@
 
             <nav class="nav-menu">
                 <button class="nav-item active" data-tab="chat-tab">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
                     <span>AI Advisor Chat</span>
                 </button>
 
                 <button class="nav-item" data-tab="dashboard-tab">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="9" />
+                        <rect x="14" y="3" width="7" height="5" />
+                        <rect x="14" y="12" width="7" height="9" />
+                        <rect x="3" y="16" width="7" height="5" />
+                    </svg>
                     <span>Financial Overview</span>
                 </button>
 
                 <button class="nav-item" data-tab="tracker-tab">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
                     <span>Income & Expenses</span>
                 </button>
 
+                <button class="nav-item" data-tab="analyse-tab">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    <span>AI Financial Analysis</span>
+                </button>
+
+                <button class="nav-item" data-tab="invest-tab">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                        <polyline points="17 6 23 6 23 12" />
+                    </svg>
+                    <span>Investments Module</span>
+                </button>
+
+                <button class="nav-item" data-tab="debt-tab">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                        <line x1="1" y1="10" x2="23" y2="10" />
+                    </svg>
+                    <span>Debt / Loan Planner</span>
+                </button>
+
+                <button class="nav-item" data-tab="emergency-tab">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                    <span>Emergency Fund</span>
+                </button>
+
                 <button class="nav-item" data-tab="goals-tab">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
                     <span>Savings Goals</span>
                 </button>
             </nav>
@@ -49,8 +101,8 @@
                 <div class="api-status-card" id="api-status-card">
                     <div class="status-indicator online"></div>
                     <div class="status-info">
-                        <span class="status-title">Groq Key Active</span>
-                        <span class="status-model" id="status-model">llama-3.3-70b-versatile</span>
+                        <span class="status-title">AI Key Active</span>
+                        <span class="status-model" id="status-model">Gemini / Groq AI</span>
                     </div>
                 </div>
             </div>
@@ -62,11 +114,28 @@
             <header class="top-header">
                 <div class="header-title">
                     <h1 id="page-heading">AI Finance Advisor</h1>
-                    <p id="page-subheading">Personalized wealth strategies, real-time budget coaching & debt planning</p>
+                    <p id="page-subheading">Personalized wealth strategies, real-time budget coaching & debt planning
+                    </p>
                 </div>
                 <div class="header-actions">
+                    <div class="currency-selector-wrapper">
+                        <label for="currency-select" class="currency-label">Currency:</label>
+                        <select id="currency-select" class="form-select currency-select">
+                            <option value="INR" data-symbol="₹">INR (₹)</option>
+                            <option value="USD" data-symbol="$">USD ($)</option>
+                            <option value="EUR" data-symbol="€">EUR (€)</option>
+                            <option value="GBP" data-symbol="£">GBP (£)</option>
+                            <option value="AED" data-symbol="AED ">AED (AED)</option>
+                            <option value="CAD" data-symbol="C$">CAD (C$)</option>
+                            <option value="AUD" data-symbol="A$">AUD (A$)</option>
+                        </select>
+                    </div>
                     <button class="btn btn-secondary" id="btn-quick-add-transaction">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
                         <span>Add Entry</span>
                     </button>
                 </div>
@@ -77,30 +146,51 @@
                 <div class="chat-container">
                     <div class="quick-prompts">
                         <span class="prompts-label">Quick Prompts:</span>
-                        <button class="prompt-chip" data-prompt="Analyze my budget using the 50/30/20 rule for a $4,500 monthly income.">💡 50/30/20 Budget Rule</button>
-                        <button class="prompt-chip" data-prompt="Should I use Debt Snowball or Debt Avalanche to pay off $8,000 credit card debt?">⚡ Debt Payoff Strategy</button>
-                        <button class="prompt-chip" data-prompt="How much should I save in an Emergency Fund and where should I park it?">🛡️ Emergency Fund Planning</button>
-                        <button class="prompt-chip" data-prompt="Give me a simple guide to start investing $300/month as a beginner.">📈 Beginner Investment Plan</button>
+                        <button class="prompt-chip"
+                            data-prompt="Analyze my expenses: Income ₹20,000, Food ₹5,000, Travel ₹3,000, Shopping ₹4,000, Entertainment ₹2,000, Other ₹3,000. Where can I save more?">🎓
+                            Student Overspending Analysis</button>
+                        <button class="prompt-chip"
+                            data-prompt="Suggest a budget plan for ₹30,000 income with Food ₹5,000, Rent ₹8,000, Transport ₹3,000, Other ₹7,000.">💡
+                            Budget Plan (50/30/20 Rule)</button>
+                        <button class="prompt-chip"
+                            data-prompt="I have a ₹2,00,000 loan at 10% interest for 3 years. Calculate my EMI, total interest, and affordability.">💳
+                            Loan EMI & Debt Planner</button>
+                        <button class="prompt-chip"
+                            data-prompt="Essential expenses: Rent ₹8,000, Food ₹5,000, Transport ₹2,000, Bills ₹2,000. Current emergency savings: ₹40,000. Calculate my 6-month target and shortfall.">🛡️
+                            6-Month Emergency Target</button>
+                        <button class="prompt-chip"
+                            data-prompt="I want to invest ₹5,000/month for 3 years with Medium Risk. Income ₹35,000, Expenses ₹20,000, Savings ₹50,000. Recommend research categories.">📈
+                            Investment Advisor</button>
                     </div>
 
                     <div class="chat-messages" id="chat-messages">
                         <div class="message assistant">
                             <div class="avatar">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                                </svg>
                             </div>
                             <div class="message-content">
-                                <p>Hello! I am <strong>WealthWise AI</strong>, your personal finance advisor powered by Groq. 👋</p>
-                                <p>How can I assist you with your finances today? You can ask me to analyze your budget, design a savings strategy, plan debt elimination, or give smart investment insights!</p>
+                                <p>Hello! I am <strong>WealthWise AI</strong>, your personal finance advisor powered by
+                                    Gemini AI & Flask. 👋</p>
+                                <p>How can I assist you with your finances today? </p>
                             </div>
                         </div>
                     </div>
 
                     <div class="chat-input-area">
                         <form id="chat-form">
-                            <input type="text" id="chat-input" placeholder="Ask your finance advisor (e.g., 'How can I save $10,000 in 12 months?')..." required autocomplete="off">
+                            <input type="text" id="chat-input"
+                                placeholder="Ask your finance advisor (e.g., 'How can I save $10,000 in 12 months?')..."
+                                required autocomplete="off">
                             <button type="submit" class="btn btn-primary" id="send-btn">
                                 <span>Send</span>
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <line x1="22" y1="2" x2="11" y2="13" />
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                                </svg>
                             </button>
                         </form>
                     </div>
@@ -114,7 +204,11 @@
                     <div class="metrics-row">
                         <div class="metric-card income">
                             <div class="metric-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <line x1="12" y1="19" x2="12" y2="5" />
+                                    <polyline points="5 12 12 5 19 12" />
+                                </svg>
                             </div>
                             <div class="metric-details">
                                 <span class="metric-label">Monthly Income</span>
@@ -124,7 +218,11 @@
 
                         <div class="metric-card expense">
                             <div class="metric-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19" />
+                                    <polyline points="19 12 12 19 5 12" />
+                                </svg>
                             </div>
                             <div class="metric-details">
                                 <span class="metric-label">Monthly Expenses</span>
@@ -134,7 +232,12 @@
 
                         <div class="metric-card savings">
                             <div class="metric-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h2v2h4v-3.5c1-.5 1.5-1 2.5-2 2.5-2.5 2.5-6.5-.5-9.5z"/><circle cx="15" cy="11" r="1"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path
+                                        d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h2v2h4v-3.5c1-.5 1.5-1 2.5-2 2.5-2.5 2.5-6.5-.5-9.5z" />
+                                    <circle cx="15" cy="11" r="1" />
+                                </svg>
                             </div>
                             <div class="metric-details">
                                 <span class="metric-label">Net Savings</span>
@@ -144,7 +247,12 @@
 
                         <div class="metric-card rate">
                             <div class="metric-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <line x1="18" y1="20" x2="18" y2="10" />
+                                    <line x1="12" y1="20" x2="12" y2="4" />
+                                    <line x1="6" y1="20" x2="6" y2="14" />
+                                </svg>
                             </div>
                             <div class="metric-details">
                                 <span class="metric-label">Savings Rate</span>
@@ -171,19 +279,29 @@
                             </div>
                             <div class="budget-breakdown">
                                 <div class="budget-bar-group">
-                                    <div class="bar-info"><span>Needs (Target 50%)</span><strong id="pct-needs">0%</strong></div>
-                                    <div class="progress-bar-bg"><div class="progress-bar-fill needs" id="bar-needs" style="width: 0%"></div></div>
+                                    <div class="bar-info"><span>Needs (Target 50%)</span><strong
+                                            id="pct-needs">0%</strong></div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill needs" id="bar-needs" style="width: 0%"></div>
+                                    </div>
                                 </div>
                                 <div class="budget-bar-group">
-                                    <div class="bar-info"><span>Wants (Target 30%)</span><strong id="pct-wants">0%</strong></div>
-                                    <div class="progress-bar-bg"><div class="progress-bar-fill wants" id="bar-wants" style="width: 0%"></div></div>
+                                    <div class="bar-info"><span>Wants (Target 30%)</span><strong
+                                            id="pct-wants">0%</strong></div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill wants" id="bar-wants" style="width: 0%"></div>
+                                    </div>
                                 </div>
                                 <div class="budget-bar-group">
-                                    <div class="bar-info"><span>Savings (Target 20%)</span><strong id="pct-savings">0%</strong></div>
-                                    <div class="progress-bar-bg"><div class="progress-bar-fill savings" id="bar-savings" style="width: 0%"></div></div>
+                                    <div class="bar-info"><span>Savings (Target 20%)</span><strong
+                                            id="pct-savings">0%</strong></div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill savings" id="bar-savings" style="width: 0%"></div>
+                                    </div>
                                 </div>
                                 <div class="ai-insight-box" id="ai-insight-box">
-                                    <p>💡 <em>Add income and expenses in the Income & Expenses tab to see your automated financial breakdown and AI recommendations!</em></p>
+                                    <p>💡 <em>Add income and expenses in the Income & Expenses tab to see your automated
+                                            financial breakdown and AI recommendations!</em></p>
                                 </div>
                             </div>
                         </div>
@@ -224,13 +342,210 @@
                 </div>
             </section>
 
-            <!-- TAB 4: Savings Goals -->
+            <!-- TAB: Financial Analysis Form -->
+            <section class="tab-content" id="analyse-tab">
+                <div class="card module-card">
+                    <div class="card-header">
+                        <h3>📊 AI Financial Analysis & Budget Audit</h3>
+                        <p class="subtitle">Submit your income, category expenses, and financial goals for automated AI audit, 50/30/20 benchmark analysis & savings recommendations.</p>
+                    </div>
+                    <form id="analysis-form" class="module-form">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="ana_income">Monthly Income (<span class="curr-symbol">₹</span>) <span style="color: var(--accent-danger);">*</span></label>
+                                <input type="number" id="ana_income" placeholder="e.g. 50000" min="1" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ana_goals">Financial Goals (Optional)</label>
+                                <input type="text" id="ana_goals" placeholder="e.g. Save ₹20,000/month, Buy a car, Emergency fund">
+                            </div>
+                        </div>
+
+                        <h4 style="margin: 1.5rem 0 0.5rem; color: var(--text-primary); font-size: 1rem;">Expense Categories (<span class="curr-symbol">₹</span>) <span style="color: var(--accent-warning); font-size: 0.85rem; font-weight: normal;">(At least 1 category required)</span></h4>
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="ana_exp_housing">Housing & Rent</label>
+                                <input type="number" id="ana_exp_housing" class="ana-expense-input" data-category="Housing" placeholder="e.g. 15000" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="ana_exp_food">Food & Groceries</label>
+                                <input type="number" id="ana_exp_food" class="ana-expense-input" data-category="Food & Groceries" placeholder="e.g. 8000" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="ana_exp_transport">Transportation & Fuel</label>
+                                <input type="number" id="ana_exp_transport" class="ana-expense-input" data-category="Transportation" placeholder="e.g. 4000" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="ana_exp_utilities">Utilities & Bills</label>
+                                <input type="number" id="ana_exp_utilities" class="ana-expense-input" data-category="Utilities" placeholder="e.g. 3000" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="ana_exp_entertainment">Entertainment & Dining</label>
+                                <input type="number" id="ana_exp_entertainment" class="ana-expense-input" data-category="Entertainment" placeholder="e.g. 5000" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="ana_exp_other">Other Expenses / Subscriptions</label>
+                                <input type="number" id="ana_exp_other" class="ana-expense-input" data-category="Other" placeholder="e.g. 2000" min="0" step="0.01">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="btn-submit-analysis" style="margin-top: 1rem;">
+                            <span>Run AI Financial Analysis</span>
+                        </button>
+                    </form>
+                    <div class="module-result" id="analysis-result" style="display: none; margin-top: 1.5rem;"></div>
+                </div>
+            </section>
+
+            <!-- TAB 4: Investments Advisor Module -->
+            <section class="tab-content" id="invest-tab">
+                <div class="card module-card">
+                    <div class="card-header">
+                        <h3>📈 Investments Advisor Module</h3>
+                        <p class="subtitle">Enter your details to receive personalized investment research categories,
+                            risk analysis & lock-in info.</p>
+                    </div>
+                    <form id="invest-form" class="module-form">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="inv_income">Monthly Income (<span class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="inv_income" placeholder="e.g. 35000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inv_expenses">Monthly Expenses (<span class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="inv_expenses" placeholder="e.g. 20000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inv_existing">Existing Savings (<span class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="inv_existing" placeholder="e.g. 50000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inv_amount">Monthly Investment Amount (<span
+                                        class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="inv_amount" placeholder="e.g. 5000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inv_goal">Financial Goal</label>
+                                <input type="text" id="inv_goal" placeholder="e.g. Retirement, Wealth Creation, House"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inv_period">Time Period (Years)</label>
+                                <input type="number" id="inv_period" placeholder="e.g. 3" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="inv_risk">Risk Appetite</label>
+                                <select id="inv_risk" class="form-select">
+                                    <option value="Low">Low Risk (Capital Preservation)</option>
+                                    <option value="Medium" selected>Medium Risk (Balanced Growth)</option>
+                                    <option value="High">High Risk (Aggressive Equity)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <span>Analyze & Recommend Investments</span>
+                        </button>
+                    </form>
+                    <div class="module-result" id="invest-result" style="display: none;"></div>
+                </div>
+            </section>
+
+            <!-- TAB 5: Debt / Loan Planner -->
+            <section class="tab-content" id="debt-tab">
+                <div class="card module-card">
+                    <div class="card-header">
+                        <h3>💳 Debt / Loan Planner</h3>
+                        <p class="subtitle">Calculate your monthly EMI, total interest, affordability ratio and debt
+                            reduction strategies.</p>
+                    </div>
+                    <form id="debt-form" class="module-form">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="debt_amount">Loan Amount (<span class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="debt_amount" placeholder="e.g. 200000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="debt_rate">Annual Interest Rate (%)</label>
+                                <input type="number" step="0.1" id="debt_rate" placeholder="e.g. 10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="debt_duration">Loan Duration (Years)</label>
+                                <input type="number" step="0.5" id="debt_duration" placeholder="e.g. 3" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="debt_user_income">Monthly Income (<span class="curr-symbol">₹</span>) for
+                                    Affordability Check</label>
+                                <input type="number" id="debt_user_income" placeholder="e.g. 30000" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <span>Calculate EMI & Debt Plan</span>
+                        </button>
+                    </form>
+                    <div class="module-result" id="debt-result" style="display: none;"></div>
+                </div>
+            </section>
+
+            <!-- TAB 6: Emergency Fund Planner -->
+            <section class="tab-content" id="emergency-tab">
+                <div class="card module-card">
+                    <div class="card-header">
+                        <h3>🛡️ Emergency Fund Planner</h3>
+                        <p class="subtitle">Determine your 3 to 6-month safety net based on essential monthly expenses.
+                        </p>
+                    </div>
+                    <form id="emergency-form" class="module-form">
+                        <div class="form-grid-2">
+                            <div class="form-group">
+                                <label for="ef_rent">Rent / Housing (<span class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="ef_rent" placeholder="e.g. 8000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ef_food">Food & Groceries (<span class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="ef_food" placeholder="e.g. 5000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ef_transport">Transport (<span class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="ef_transport" placeholder="e.g. 2000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ef_bills">Essential Bills & Utilities (<span
+                                        class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="ef_bills" placeholder="e.g. 2000" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="ef_current">Current Emergency Savings (<span
+                                        class="curr-symbol">₹</span>)</label>
+                                <input type="number" id="ef_current" placeholder="e.g. 40000" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="ef_months">Coverage Target (Months)</label>
+                                <select id="ef_months" class="form-select">
+                                    <option value="3">3 Months (Standard)</option>
+                                    <option value="6" selected>6 Months (Recommended)</option>
+                                    <option value="12">12 Months (Conservative)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <span>Calculate Emergency Fund & Shortfall</span>
+                        </button>
+                    </form>
+                    <div class="module-result" id="emergency-result" style="display: none;"></div>
+                </div>
+            </section>
+
+            <!-- TAB 7: Savings Goals -->
             <section class="tab-content" id="goals-tab">
                 <div class="card goals-card">
                     <div class="card-header flex-between">
                         <h3>Financial Goals & Milestones</h3>
                         <button class="btn btn-primary btn-sm" id="btn-add-goal">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
                             <span>New Goal</span>
                         </button>
                     </div>
@@ -267,7 +582,7 @@
                     <input type="text" id="tx_desc" placeholder="e.g. Salary, Rent, Groceries, Netflix" required>
                 </div>
                 <div class="form-group">
-                    <label for="tx_amount">Amount ($)</label>
+                    <label for="tx_amount">Amount (<span class="curr-symbol">₹</span>)</label>
                     <input type="number" id="tx_amount" step="0.01" min="0.01" placeholder="0.00" required>
                 </div>
                 <div class="form-group">
@@ -301,14 +616,15 @@
             <form id="goal-form">
                 <div class="form-group">
                     <label for="goal_title">Goal Title</label>
-                    <input type="text" id="goal_title" placeholder="e.g. Emergency Fund, House Down Payment, Vacation" required>
+                    <input type="text" id="goal_title" placeholder="e.g. Emergency Fund, House Down Payment, Vacation"
+                        required>
                 </div>
                 <div class="form-group">
-                    <label for="goal_target">Target Amount ($)</label>
+                    <label for="goal_target">Target Amount (<span class="curr-symbol">₹</span>)</label>
                     <input type="number" id="goal_target" step="0.01" min="1" placeholder="5000.00" required>
                 </div>
                 <div class="form-group">
-                    <label for="goal_current">Current Savings ($)</label>
+                    <label for="goal_current">Current Savings (<span class="curr-symbol">₹</span>)</label>
                     <input type="number" id="goal_current" step="0.01" min="0" placeholder="1000.00" value="0">
                 </div>
                 <div class="modal-actions">
@@ -319,6 +635,7 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
+
 </html>

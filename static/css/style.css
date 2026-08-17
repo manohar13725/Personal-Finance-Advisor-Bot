@@ -1,0 +1,804 @@
+/* WealthWise - Personal Finance Advisor Dashboard CSS */
+:root {
+    --primary: #0a4f8f;      /* Deep Blue */
+    --primary-light: #2c82c9;/* Soft Sky Blue */
+    --accent: #2ecc71;       /* Green */
+    --accent-light: #a3e4d7; /* Pastel Teal */
+    --bg-dark: #0a0f1d;      /* Midnight Blue Dark Background */
+    --bg-card: rgba(20, 30, 55, 0.65); /* Glassmorphic Card Background */
+    --border-color: rgba(255, 255, 255, 0.08);
+    --text-primary: #f5f6fa;
+    --text-secondary: #a0a8c0;
+    --accent-danger: #e74c3c; /* Red for overspending */
+    --accent-warning: #f1c40f;/* Yellow for warning */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    background-image: radial-gradient(circle at 10% 20%, rgba(10, 79, 143, 0.15) 0%, transparent 40%),
+                      radial-gradient(circle at 90% 80%, rgba(46, 204, 113, 0.1) 0%, transparent 40%);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+}
+
+/* Header styling */
+header.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+
+.brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brand-logo {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(10, 79, 143, 0.4);
+}
+
+.brand-title h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    background: linear-gradient(to right, #fff, var(--primary-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-title p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Base Card Style (Glassmorphism) */
+.glass-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Input Form Section */
+.input-section {
+    margin-bottom: 2.5rem;
+}
+
+.input-section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1.25rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.form-control {
+    background: rgba(10, 15, 29, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(44, 130, 201, 0.2);
+}
+
+textarea.form-control {
+    resize: vertical;
+}
+
+/* Grid for category expenses */
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.category-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.category-input-wrapper i {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.category-input-wrapper input {
+    padding-left: 2.5rem;
+    width: 100%;
+}
+
+/* Button */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.85rem 1.75rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(10, 79, 143, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(10, 79, 143, 0.5);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Results Layout Grid (Left: Budget, Right: Analysis & Suggestions) */
+.results-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+}
+
+@media (min-width: 992px) {
+    .results-layout {
+        grid-template-columns: 1.1fr 0.9fr;
+    }
+}
+
+.results-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+/* Summary metrics ribbon at the top of results */
+.metrics-ribbon {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.metric-box {
+    background: rgba(10, 15, 29, 0.4);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.metric-box span {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+
+.metric-box strong {
+    display: block;
+    font-size: 1.25rem;
+    margin-top: 0.25rem;
+    color: #fff;
+}
+
+/* Budget Cards Component (Left Column) */
+.budget-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.budget-card {
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.budget-card:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.budget-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.budget-card-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.budget-card-title i {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(44, 130, 201, 0.15);
+    color: var(--primary-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.budget-card-values {
+    text-align: right;
+}
+
+.budget-card-values .amount {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    display: block;
+}
+
+.budget-card-values .pct {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Progress bar indicators */
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.progress-track {
+    background: rgba(255, 255, 255, 0.08);
+    height: 8px;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.8s ease-in-out;
+}
+
+.progress-fill.green {
+    background: linear-gradient(90deg, var(--accent), #58d68d);
+}
+
+.progress-fill.yellow {
+    background: linear-gradient(90deg, var(--accent-warning), #f5b041);
+}
+
+.progress-fill.red {
+    background: linear-gradient(90deg, var(--accent-danger), #ec7063);
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Spending Analysis chips/glass card (Right Column) */
+.spending-analysis-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.spending-analysis-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.15rem;
+}
+
+.spending-analysis-header i {
+    color: var(--accent);
+}
+
+.analysis-chips-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.analysis-chip-card {
+    flex: 1 1 calc(50% - 0.75rem);
+    background: rgba(10, 15, 29, 0.5);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+.analysis-chip-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.analysis-chip-card.on-track::before {
+    background: var(--accent);
+}
+
+.analysis-chip-card.overspending::before {
+    background: var(--accent-danger);
+}
+
+.analysis-chip-card.warning::before {
+    background: var(--accent-warning);
+}
+
+.analysis-chip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.analysis-status-badge {
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 0.03em;
+}
+
+.analysis-status-badge.on-track {
+    background: rgba(46, 204, 113, 0.15);
+    color: var(--accent);
+}
+
+.analysis-status-badge.overspending {
+    background: rgba(231, 76, 60, 0.15);
+    color: var(--accent-danger);
+}
+
+.analysis-status-badge.warning {
+    background: rgba(241, 196, 15, 0.15);
+    color: var(--accent-warning);
+}
+
+.analysis-chip-value {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fff;
+}
+
+.analysis-chip-tip {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.3;
+}
+
+/* Saving Suggestions ordered list (Right Column) */
+.suggestions-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.suggestions-card-header i {
+    font-size: 1.25rem;
+    color: var(--accent-warning);
+    background: rgba(241, 196, 15, 0.12);
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.suggestions-card-header h3 {
+    font-size: 1.15rem;
+}
+
+.suggestions-list-ol {
+    list-style: none;
+    counter-reset: sug-counter;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.suggestions-list-ol li {
+    counter-increment: sug-counter;
+    position: relative;
+    padding-left: 2.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.suggestions-list-ol li::before {
+    content: counter(sug-counter);
+    position: absolute;
+    left: 0;
+    top: 2px;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.75rem;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(10, 79, 143, 0.3);
+}
+
+/* Loading indicator & feedback messages */
+.loading-box {
+    text-align: center;
+    padding: 3rem;
+}
+
+.spinner {
+    border: 3px solid rgba(255, 255, 255, 0.05);
+    border-top: 3px solid var(--accent);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    background: rgba(231, 76, 60, 0.12);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+    color: #ec7063;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* -------------------------------------------------------------
+   Hamburger Menu & Drawer Layout
+   ------------------------------------------------------------- */
+.menu-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.hamburger-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.hamburger-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary-light);
+}
+
+.menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: rgba(10, 15, 29, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 240px;
+    padding: 0.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 1000;
+}
+
+.menu-dropdown.active {
+    display: flex;
+}
+
+.menu-item-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.menu-item-btn i {
+    width: 20px;
+    color: var(--primary-light);
+    font-size: 0.95rem;
+}
+
+.menu-item-btn:hover {
+    background: rgba(44, 130, 201, 0.15);
+    color: #fff;
+}
+
+/* -------------------------------------------------------------
+   Modal Overlays
+   ------------------------------------------------------------- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(6, 9, 17, 0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    font-size: 1.15rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+    color: var(--accent-danger);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.modal-body .module-result {
+    margin-top: 1.5rem;
+    padding: 1.25rem;
+    border-radius: 12px;
+    background: rgba(10, 15, 29, 0.4);
+    border: 1px solid var(--border-color);
+}
+
+.sebi-disclaimer {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(241, 196, 15, 0.08);
+    border: 1px solid rgba(241, 196, 15, 0.15);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* -------------------------------------------------------------
+   Savings Goals Grid & Cards
+   ------------------------------------------------------------- */
+.goals-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.goals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.goal-card {
+    background: rgba(10, 15, 29, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.goal-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.goal-card-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #fff;
+}
+
+.btn-del-goal {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1.15rem;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+
+.btn-del-goal:hover {
+    color: var(--accent-danger);
+}
+
+.goal-card-values {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.goal-card-values strong {
+    color: #fff;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
