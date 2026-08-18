@@ -1,13 +1,14 @@
-import os
-from dotenv import load_dotenv
-from app import app
+#!/usr/bin/env python3
+import subprocess
+import sys
+import time
 
-# Load environment variables
-load_dotenv()
+print("Starting WealthWise Server with local tunnel support...")
+server = subprocess.Popen([sys.executable, "app.py"])
 
-PORT = int(os.getenv("PORT", "8000"))
-
-if __name__ == "__main__":
-    print(f"=== Personal Finance Advisor Bot (Public Flask Server) ===")
-    print(f"Starting Flask application on 0.0.0.0:{PORT}...")
-    app.run(host="0.0.0.0", port=PORT, debug=False)
+try:
+    while True:
+        time.sleep(1)
+except KeyboardInterrupt:
+    print("\nStopping server...")
+    server.terminate()
