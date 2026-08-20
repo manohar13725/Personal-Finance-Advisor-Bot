@@ -297,6 +297,7 @@ def analyse():
                 print(f"Groq API Exception during analysis: {err}")
 
         # 6. Fallback Smart Advisor Engine calculation if API keys unconfigured
+        # 6. Fallback Smart Advisor Engine calculation if API keys unconfigured
         if not raw_response_text:
             total_exp = sum(parsed_expenses.values())
             net_sav = income - total_exp
@@ -332,6 +333,8 @@ def analyse():
                     "Build a 3 to 6 month emergency safety fund.",
                     "Target saving at least 20% of net monthly income."
                 ],
+                "savings_tips": [],
+                "investment_tips": [],
                 "summary": summary_text
             })
 
@@ -374,34 +377,37 @@ def analyse():
                 "Prioritize building a 3-6 month emergency fund.",
                 "Save at least 20% of your net monthly income."
             ]
+        # Ensure savings_tips and investment_tips exist
+        if "savings_tips" not in parsed_data or not isinstance(parsed_data["savings_tips"], list):
+            parsed_data["savings_tips"] = []
+        if "investment_tips" not in parsed_data or not isinstance(parsed_data["investment_tips"], list):
+            parsed_data["investment_tips"] = []
 
         return jsonify({
             "success": True,
             "budget": parsed_data["budget"],
             "analysis": parsed_data["analysis"],
             "suggestions": parsed_data["suggestions"],
+            "savings_tips": parsed_data["savings_tips"],
+            "investment_tips": parsed_data["investment_tips"],
             "summary": parsed_data["analysis"]["summary"]
         })
 
     except Exception as e:
-        return jsonify({"error": f"Analysis Processing Error: {str(e)}"}), 500
-
-@app.route("/api/health", methods=["GET"])
-def health_check():
-    gemini_key_loaded = bool(GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here")
-    groq_key_loaded = bool(GROQ_API_KEY)
-    key_loaded = gemini_key_loaded or groq_key_loaded
-    active_key = GEMINI_API_KEY if gemini_key_loaded else GROQ_API_KEY
-    masked_key = active_key[:7] + "..." + active_key[-4:] if active_key else "Not configured"
-    
-    return jsonify({
-        "status": "online",
-        "api_key_loaded": key_loaded,
-        "gemini_api_key_loaded": gemini_key_loaded,
-        "groq_api_key_loaded": groq_key_loaded,
-        "masked_key": masked_key,
-        "model": "gemini-2.5-flash" if gemini_key_loaded else DEFAULT_MODEL
-    })
+        gemini_key_loaded = bool(GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here")
+        groq_key_loaded = bool(GROQ_API_KEY)
+        key_loaded = gemini_key_loaded or groq_key_loaded
+        active_key = GEMINI_API_KEY if gemini_key_loaded else GROQ_API_KEY
+        masked_key = active_key[:7] + "..." + active_key[-4:] if active_key else "Not configured"
+        
+        return jsonify({
+            "status": "online",
+            "api_key_loaded": key_loaded,
+            "gemini_api_key_loaded": gemini_key_loaded,
+            "groq_api_key_loaded": groq_key_loaded,
+            "masked_key": masked_key,
+            "model": "gemini-2.5-flash" if gemini_key_loaded else DEFAULT_MODEL
+        })
 
 @app.route("/api/config/key", methods=["POST"])
 def update_api_key():
@@ -572,3 +578,4 @@ def run_server():
 
 if __name__ == "__main__":
     run_server()
+
