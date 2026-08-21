@@ -1,8 +1,10 @@
 import os
 import json
 import re
+import sqlite3
 from pathlib import Path
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session
+from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 
 # Load environment variables automatically at startup using python-dotenv
@@ -15,6 +17,18 @@ PORT = int(os.getenv("PORT", "8000"))
 
 # Initialize Flask app
 app = Flask(__name__, template_folder="templates", static_folder="static")
+app.secret_key = os.getenv("FLASK_SECRET_KEY", "super-secret-wealthwise-key-1234")
+
+# Initialize SQLite Database
+def init_db():
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS users 
+                 (username TEXT PRIMARY KEY, password_hash TEXT)''')
+    conn.commit()
+    conn.close()
+
+init_db()
 
 SYSTEM_PROMPT = """You are WealthWise AI, an expert, empathetic, and highly knowledgeable Personal Finance Advisor designed to help students, salaried professionals, and individuals master their finances.
 
@@ -184,6 +198,67 @@ if GENAI_AVAILABLE and GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key
     except Exception as e:
         print(f"Warning: Failed to initialize Google GenAI client: {e}")
 
+@app.route("/api/auth/register", methods=["POST"])
+def auth_register():
+    data = request.get_json() or {}
+    username = data.get("username", "").strip()
+    password = data.get("password", "")
+    
+    if not username or not password:
+        return jsonify({"error": "User ID and password are required."}), 400
+        
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    try:
+        c.execute("SELECT * FROM users WHERE username = ?", (username,))
+        if c.fetchone():
+            return jsonify({"error": "User ID already exists."}), 400
+            
+        password_hash = generate_password_hash(password)
+        c.execute("INSERT INTO users (username, password_hash) VALUES (?, ?)", (username, password_hash))
+        conn.commit()
+        session['username'] = username
+        return jsonify({"success": True, "message": "Registered successfully."})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route("/api/auth/login", methods=["POST"])
+def auth_login():
+    data = request.get_json() or {}
+    username = data.get("username", "").strip()
+    password = data.get("password", "")
+    
+    if not username or not password:
+        return jsonify({"error": "User ID and password are required."}), 400
+        
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    try:
+        c.execute("SELECT password_hash FROM users WHERE username = ?", (username,))
+        row = c.fetchone()
+        if row and check_password_hash(row[0], password):
+            session['username'] = username
+            return jsonify({"success": True, "message": "Logged in successfully."})
+        else:
+            return jsonify({"error": "Invalid User ID or password."}), 401
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route("/api/auth/logout", methods=["POST"])
+def auth_logout():
+    session.pop('username', None)
+    return jsonify({"success": True})
+
+@app.route("/api/auth/status", methods=["GET"])
+def auth_status():
+    if 'username' in session:
+        return jsonify({"logged_in": True, "username": session['username']})
+    return jsonify({"logged_in": False})
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -246,30 +321,24 @@ def analyse():
 
         raw_response_text = ""
 
-        # 4. Integrate API Call (Gemini API with gemini-2.0-flash / gemini-2.5-flash)
+        # 4. Integrate API Call (Gemini API - single model, no double retry)
         if GENAI_AVAILABLE and (genai_client or (GEMINI_API_KEY and GEMINI_API_KEY != "your_gemini_api_key_here")):
             try:
                 if not genai_client and genai is not None:
                     genai_client = genai.Client(api_key=GEMINI_API_KEY)
 
                 if genai_client:
-                    try:
-                        response = genai_client.models.generate_content(
-                            model="gemini-2.0-flash",
-                            contents=prompt
-                        )
-                    except Exception:
-                        response = genai_client.models.generate_content(
-                            model="gemini-2.5-flash",
-                            contents=prompt
-                        )
+                    response = genai_client.models.generate_content(
+                        model="gemini-2.5-flash",
+                        contents=prompt
+                    )
 
                     if response and hasattr(response, "text") and response.text:
                         raw_response_text = response.text
             except Exception as e:
                 print(f"Gemini API Exception during analysis: {e}. Trying fallback...")
 
-        # 5. Fallback API Call (Groq API)
+        # 5. Fallback API Call (Groq API with 10s timeout)
         if not raw_response_text and GROQ_API_KEY and not GROQ_API_KEY.startswith("gsk_placeholder"):
             import urllib.request
             payload = {
@@ -290,13 +359,12 @@ def analyse():
                 data=json.dumps(payload).encode("utf-8")
             )
             try:
-                with urllib.request.urlopen(req) as resp:
+                with urllib.request.urlopen(req, timeout=10) as resp:
                     resp_data = json.loads(resp.read().decode("utf-8"))
                     raw_response_text = resp_data["choices"][0]["message"]["content"]
             except Exception as err:
                 print(f"Groq API Exception during analysis: {err}")
 
-        # 6. Fallback Smart Advisor Engine calculation if API keys unconfigured
         # 6. Fallback Smart Advisor Engine calculation if API keys unconfigured
         if not raw_response_text:
             total_exp = sum(parsed_expenses.values())
@@ -578,4 +646,3 @@ def run_server():
 
 if __name__ == "__main__":
     run_server()
-

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,9 +13,56 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
-    <div class="container">
+    <!-- Authentication Overlay -->
+    <div id="auth-overlay" class="modal-overlay" style="display: flex; background: var(--bg-dark); z-index: 9999;">
+        <div class="modal-box" style="max-width: 400px; padding: 2rem; text-align: center;">
+            <div class="brand-logo" style="margin: 0 auto 1rem; width: 64px; height: 64px; font-size: 2rem;">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+            <h2 style="margin-bottom: 1.5rem;">Welcome to WealthWise</h2>
+            
+            <!-- Login Form -->
+            <form id="login-form">
+                <div class="form-group" style="text-align: left; margin-bottom: 1rem;">
+                    <label for="login-username">User ID</label>
+                    <input type="text" id="login-username" class="form-control" required>
+                </div>
+                <div class="form-group" style="text-align: left; margin-bottom: 1.5rem;">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Login</button>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                    New user? <a href="#" id="show-register" style="color: var(--primary-light);">Create an account</a>
+                </p>
+            </form>
+
+            <!-- Registration Form (hidden by default) -->
+            <form id="register-form" style="display: none;">
+                <div class="form-group" style="text-align: left; margin-bottom: 1rem;">
+                    <label for="register-username">Choose User ID</label>
+                    <input type="text" id="register-username" class="form-control" required>
+                </div>
+                <div class="form-group" style="text-align: left; margin-bottom: 1.5rem;">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+                <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-secondary);">
+                    Existing user? <a href="#" id="show-login" style="color: var(--primary-light);">Login here</a>
+                </p>
+            </form>
+            
+            <div id="auth-message" style="margin-top: 1rem; font-size: 0.9rem; color: var(--accent-danger); display: none;"></div>
+        </div>
+    </div>
+
+    <div class="container" id="main-app-container" style="display: none;">
         <!-- Dashboard Header -->
         <header class="dashboard-header">
             <div class="brand-wrapper">
@@ -25,6 +73,23 @@
                     <h1>WealthWise</h1>
                     <p>Smart wealth coaching, budget auditing & calibrated savings suggestions</p>
                 </div>
+            </div>
+            <div class="header-actions" style="margin-left: auto; margin-right: 1rem; display: flex; gap: 1rem; align-items: center;">
+                <div class="currency-selector-wrapper">
+                    <label for="currency-select" class="currency-label">Currency:</label>
+                    <select id="currency-select" class="currency-select">
+                        <option value="INR" data-symbol="₹">INR (₹)</option>
+                        <option value="USD" data-symbol="$">USD ($)</option>
+                        <option value="EUR" data-symbol="€">EUR (€)</option>
+                        <option value="GBP" data-symbol="£">GBP (£)</option>
+                        <option value="AED" data-symbol="AED ">AED (AED)</option>
+                        <option value="CAD" data-symbol="C$">CAD (C$)</option>
+                        <option value="AUD" data-symbol="A$">AUD (A$)</option>
+                    </select>
+                </div>
+                <button id="btn-logout" class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
             </div>
             <div class="menu-wrapper">
                 <button class="hamburger-btn" id="menu-toggle" aria-label="Toggle Navigation Menu">
@@ -46,6 +111,9 @@
                     <button class="menu-item-btn" data-modal="goals-modal">
                         <i class="fa-solid fa-bullseye"></i> Savings Goals
                     </button>
+                    <button class="menu-item-btn" data-modal="graph-modal">
+                        <i class="fa-solid fa-chart-pie"></i> Yearly Graph
+                    </button>
                     <button class="menu-item-btn" data-modal="activity-modal">
                         <i class="fa-solid fa-list-check"></i> Activity Module
                     </button>
@@ -56,60 +124,71 @@
         <!-- Input Form Section -->
         <section class="input-section glass-card">
             <h2><i class="fa-solid fa-calculator"></i> Enter Your Financial Profile</h2>
-            <form id="advisor-form">
+            <form id="advisor-form" novalidate>
                 <div class="form-grid-2">
                     <div class="form-group">
-                        <label for="income_input">Monthly Net Income (<span class="curr-symbol">₹</span>) <span style="color: var(--accent-danger);">*</span></label>
-                        <input type="number" id="income_input" class="form-control" placeholder="e.g. 50000" min="1" step="0.01" required>
+                        <label for="income_input">Monthly Net Income (<span class="curr-symbol">₹</span>) <span
+                                style="color: var(--accent-danger);">*</span></label>
+                        <input type="number" id="income_input" class="form-control" placeholder="e.g. 50000" min="0"
+                            step="any" required>
                     </div>
                     <div class="form-group">
                         <label for="goals_input">Financial Goal (Optional)</label>
-                        <input type="text" id="goals_input" class="form-control" placeholder="e.g. Emergency Fund, Vacation, Gadget purchase, Investment">
+                        <input type="text" id="goals_input" class="form-control"
+                            placeholder="e.g. Emergency Fund, Vacation, Gadget purchase, Investment">
                     </div>
                 </div>
 
-                <h3 style="font-size: 0.95rem; margin: 1.5rem 0 0.75rem; color: var(--text-secondary);"><i class="fa-solid fa-tags"></i> Monthly Category Expenses (<span class="curr-symbol">₹</span>)</h3>
+                <h3 style="font-size: 0.95rem; margin: 1.5rem 0 0.75rem; color: var(--text-secondary);"><i
+                        class="fa-solid fa-tags"></i> Monthly Category Expenses (<span class="curr-symbol">₹</span>)
+                </h3>
                 <div class="categories-grid">
                     <div class="form-group">
                         <label for="exp_rent">Housing & Rent</label>
                         <div class="category-input-wrapper">
                             <i class="fa-solid fa-house"></i>
-                            <input type="number" id="exp_rent" class="form-control expense-input" data-category="rent" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="exp_rent" class="form-control expense-input" data-category="rent"
+                                placeholder="0.00" min="0" step="any">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="exp_food">Food & Groceries</label>
                         <div class="category-input-wrapper">
                             <i class="fa-solid fa-utensils"></i>
-                            <input type="number" id="exp_food" class="form-control expense-input" data-category="food" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="exp_food" class="form-control expense-input" data-category="food"
+                                placeholder="0.00" min="0" step="any">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="exp_transport">Transportation</label>
                         <div class="category-input-wrapper">
                             <i class="fa-solid fa-car"></i>
-                            <input type="number" id="exp_transport" class="form-control expense-input" data-category="transport" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="exp_transport" class="form-control expense-input"
+                                data-category="transport" placeholder="0.00" min="0" step="any">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="exp_utilities">Utilities & Bills</label>
                         <div class="category-input-wrapper">
                             <i class="fa-solid fa-file-invoice-dollar"></i>
-                            <input type="number" id="exp_utilities" class="form-control expense-input" data-category="utilities" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="exp_utilities" class="form-control expense-input"
+                                data-category="utilities" placeholder="0.00" min="0" step="any">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="exp_entertainment">Entertainment</label>
                         <div class="category-input-wrapper">
                             <i class="fa-solid fa-gamepad"></i>
-                            <input type="number" id="exp_entertainment" class="form-control expense-input" data-category="entertainment" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="exp_entertainment" class="form-control expense-input"
+                                data-category="entertainment" placeholder="0.00" min="0" step="any">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="exp_other">Other Expenses</label>
                         <div class="category-input-wrapper">
                             <i class="fa-solid fa-ellipsis"></i>
-                            <input type="number" id="exp_other" class="form-control expense-input" data-category="other" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="exp_other" class="form-control expense-input" data-category="other"
+                                placeholder="0.00" min="0" step="any">
                         </div>
                     </div>
                 </div>
@@ -128,8 +207,9 @@
             <!-- Left Column: Budget Cards -->
             <div class="results-column">
                 <div class="glass-card">
-                    <h3 style="margin-bottom: 1.25rem; font-size: 1.15rem;"><i class="fa-solid fa-chart-pie"></i> Category Budget Allocations</h3>
-                    
+                    <h3 style="margin-bottom: 1.25rem; font-size: 1.15rem;"><i class="fa-solid fa-chart-pie"></i>
+                        Category Budget Allocations</h3>
+
                     <!-- Metrics Ribbon inside Left column -->
                     <div class="metrics-ribbon">
                         <div class="metric-box">
@@ -160,20 +240,21 @@
             <div class="results-column">
                 <!-- Spending Analysis glass card -->
                 <div class="glass-card spending-analysis-container">
-                    <h3 class="spending-analysis-header"><i class="fa-solid fa-magnifying-glass-chart"></i> Spending Analysis & Thresholds</h3>
+                    <h3 class="spending-analysis-header"><i class="fa-solid fa-magnifying-glass-chart"></i> Spending
+                        Analysis & Thresholds</h3>
                     <div class="analysis-chips-grid" id="analysis-chips-box">
                         <!-- Dynamic Spending Analysis Chips -->
                     </div>
                 </div>
 
-                <!-- Saving Suggestions List card -->
+                <!-- Future Plans card -->
                 <div class="glass-card">
                     <div class="suggestions-card-header">
-                        <i class="fa-solid fa-piggy-bank"></i>
-                        <h3>Saving Suggestions List</h3>
+                        <i class="fa-solid fa-rocket"></i>
+                        <h3>Future Plans</h3>
                     </div>
                     <ol class="suggestions-list-ol" id="suggestions-list-box">
-                        <!-- Dynamic saving recommendations -->
+                        <!-- Dynamic future plan points (max 7) -->
                     </ol>
                 </div>
             </div>
@@ -192,50 +273,62 @@
                 <button class="modal-close" data-close="budget-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="budget-gen-form">
+                <form id="budget-gen-form" novalidate>
                     <div class="form-grid-2">
                         <div class="form-group">
-                            <label for="bg_income">Monthly Net Income (<span class="curr-symbol">₹</span>) <span style="color: var(--accent-danger);">*</span></label>
-                            <input type="number" id="bg_income" class="form-control" placeholder="e.g. 50000" min="1" step="0.01" required>
+                            <label for="bg_income">Monthly Net Income (<span class="curr-symbol">₹</span>) <span
+                                    style="color: var(--accent-danger);">*</span></label>
+                            <input type="number" id="bg_income" class="form-control" placeholder="e.g. 50000" min="0"
+                                step="any" required>
                         </div>
                         <div class="form-group">
                             <label for="bg_profile">Employment Profile</label>
                             <select id="bg_profile" class="form-control">
-                                <option value="Salaried Professional" selected>Salaried Professional (Fixed Pay)</option>
+                                <option value="Salaried Professional" selected>Salaried Professional (Fixed Pay)
+                                </option>
                                 <option value="Freelancer / Consultant">Freelancer / Variable Pay</option>
                                 <option value="Student / Early Career">Student / Early Career</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="bg_rent">Housing / Rent (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="bg_rent" class="form-control" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="bg_rent" class="form-control" placeholder="0.00" min="0"
+                                step="any">
                         </div>
                         <div class="form-group">
-                            <label for="bg_bills">Essential Bills / Utilities (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="bg_bills" class="form-control" placeholder="0.00" min="0" step="0.01">
+                            <label for="bg_bills">Essential Bills / Utilities (<span
+                                    class="curr-symbol">₹</span>)</label>
+                            <input type="number" id="bg_bills" class="form-control" placeholder="0.00" min="0"
+                                step="any">
                         </div>
                         <div class="form-group">
                             <label for="bg_food">Food & Groceries (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="bg_food" class="form-control" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="bg_food" class="form-control" placeholder="0.00" min="0"
+                                step="any">
                         </div>
                         <div class="form-group">
                             <label for="bg_dining">Dining & Ordering Out (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="bg_dining" class="form-control" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="bg_dining" class="form-control" placeholder="0.00" min="0"
+                                step="any">
                         </div>
                         <div class="form-group">
-                            <label for="bg_transport">Transportation / Commute (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="bg_transport" class="form-control" placeholder="0.00" min="0" step="0.01">
+                            <label for="bg_transport">Transportation / Commute (<span
+                                    class="curr-symbol">₹</span>)</label>
+                            <input type="number" id="bg_transport" class="form-control" placeholder="0.00" min="0"
+                                step="any">
                         </div>
                         <div class="form-group">
                             <label for="bg_savings">Target Monthly Savings (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="bg_savings" class="form-control" placeholder="0.00" min="0" step="0.01">
+                            <input type="number" id="bg_savings" class="form-control" placeholder="0.00" min="0"
+                                step="any">
                         </div>
                     </div>
                     <button type="submit" class="btn-primary">
                         <i class="fa-solid fa-magic"></i> Generate Structured Budget Plan
                     </button>
                 </form>
-                <div class="module-result" id="budget-gen-result" style="display: none; line-height: 1.6; white-space: pre-wrap; margin-top: 1.5rem;"></div>
+                <div class="module-result" id="budget-gen-result"
+                    style="display: none; line-height: 1.6; white-space: pre-wrap; margin-top: 1.5rem;"></div>
             </div>
         </div>
     </div>
@@ -248,31 +341,40 @@
                 <button class="modal-close" data-close="invest-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="invest-form">
+                <form id="invest-form" novalidate>
                     <div class="form-grid-2">
                         <div class="form-group">
-                            <label for="inv_income">Monthly Net Income (<span class="curr-symbol">₹</span>) <span style="color: var(--accent-danger);">*</span></label>
-                            <input type="number" id="inv_income" class="form-control" placeholder="e.g. 50000" min="1" step="0.01" required>
+                            <label for="inv_income">Monthly Net Income (<span class="curr-symbol">₹</span>) <span
+                                    style="color: var(--accent-danger);">*</span></label>
+                            <input type="number" id="inv_income" class="form-control" placeholder="e.g. 50000" min="0"
+                                step="any" required>
                         </div>
                         <div class="form-group">
                             <label for="inv_expenses">Monthly Net Expenses (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="inv_expenses" class="form-control" placeholder="e.g. 30000" min="0" step="0.01">
+                            <input type="number" id="inv_expenses" class="form-control" placeholder="e.g. 30000" min="0"
+                                step="any">
                         </div>
                         <div class="form-group">
-                            <label for="inv_existing">Existing Savings / Portfolio (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="inv_existing" class="form-control" placeholder="e.g. 50000" min="0" step="0.01" value="0">
+                            <label for="inv_existing">Existing Savings / Portfolio (<span
+                                    class="curr-symbol">₹</span>)</label>
+                            <input type="number" id="inv_existing" class="form-control" placeholder="e.g. 50000" min="0"
+                                step="any" value="0">
                         </div>
                         <div class="form-group">
-                            <label for="inv_amount">Target Monthly Investment (<span class="curr-symbol">₹</span>) <span style="color: var(--accent-danger);">*</span></label>
-                            <input type="number" id="inv_amount" class="form-control" placeholder="e.g. 5000" min="1" step="0.01" required>
+                            <label for="inv_amount">Target Monthly Investment (<span class="curr-symbol">₹</span>) <span
+                                    style="color: var(--accent-danger);">*</span></label>
+                            <input type="number" id="inv_amount" class="form-control" placeholder="e.g. 5000" min="0"
+                                step="any" required>
                         </div>
                         <div class="form-group">
                             <label for="inv_goal">Investment Goal Target</label>
-                            <input type="text" id="inv_goal" class="form-control" placeholder="e.g. Retirement, Wealth Creation, House" required>
+                            <input type="text" id="inv_goal" class="form-control"
+                                placeholder="e.g. Retirement, Wealth Creation, House" required>
                         </div>
                         <div class="form-group">
                             <label for="inv_period">Time Horizon (Years)</label>
-                            <input type="number" id="inv_period" class="form-control" placeholder="e.g. 3" min="0.5" step="0.5" required>
+                            <input type="number" id="inv_period" class="form-control" placeholder="e.g. 3" min="0.5"
+                                step="0.5" required>
                         </div>
                         <div class="form-group">
                             <label for="inv_risk">Risk Appetite</label>
@@ -287,7 +389,8 @@
                         <i class="fa-solid fa-chart-pie"></i> Analyze Risk & Portfolio Strategy
                     </button>
                 </form>
-                <div class="module-result" id="invest-result" style="display: none; line-height: 1.6; white-space: pre-wrap; margin-top: 1.5rem;"></div>
+                <div class="module-result" id="invest-result"
+                    style="display: none; line-height: 1.6; white-space: pre-wrap; margin-top: 1.5rem;"></div>
             </div>
         </div>
     </div>
@@ -300,30 +403,39 @@
                 <button class="modal-close" data-close="debt-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="debt-form">
+                <form id="debt-form" novalidate>
                     <div class="form-grid-2">
                         <div class="form-group">
-                            <label for="debt_amount">Loan Amount (<span class="curr-symbol">₹</span>) <span style="color: var(--accent-danger);">*</span></label>
-                            <input type="number" id="debt_amount" class="form-control" placeholder="e.g. 200000" min="1" step="0.01" required>
+                            <label for="debt_amount">Loan Amount (<span class="curr-symbol">₹</span>) <span
+                                    style="color: var(--accent-danger);">*</span></label>
+                            <input type="number" id="debt_amount" class="form-control" placeholder="e.g. 200000" min="0"
+                                step="any" required>
                         </div>
                         <div class="form-group">
-                            <label for="debt_rate">Annual Interest Rate (%) <span style="color: var(--accent-danger);">*</span></label>
-                            <input type="number" id="debt_rate" class="form-control" placeholder="e.g. 10" min="0.1" step="0.05" required>
+                            <label for="debt_rate">Annual Interest Rate (%) <span
+                                    style="color: var(--accent-danger);">*</span></label>
+                            <input type="number" id="debt_rate" class="form-control" placeholder="e.g. 10" min="0.1"
+                                step="0.05" required>
                         </div>
                         <div class="form-group">
-                            <label for="debt_duration">Loan Tenure (Years) <span style="color: var(--accent-danger);">*</span></label>
-                            <input type="number" id="debt_duration" class="form-control" placeholder="e.g. 3" min="0.5" step="0.5" required>
+                            <label for="debt_duration">Loan Tenure (Years) <span
+                                    style="color: var(--accent-danger);">*</span></label>
+                            <input type="number" id="debt_duration" class="form-control" placeholder="e.g. 3" min="0.5"
+                                step="0.5" required>
                         </div>
                         <div class="form-group">
-                            <label for="debt_user_income">Monthly Net Income (<span class="curr-symbol">₹</span>) for Affordability</label>
-                            <input type="number" id="debt_user_income" class="form-control" placeholder="e.g. 30000" min="1" step="0.01" required>
+                            <label for="debt_user_income">Monthly Net Income (<span class="curr-symbol">₹</span>) for
+                                Affordability</label>
+                            <input type="number" id="debt_user_income" class="form-control" placeholder="e.g. 30000"
+                                min="0" step="any" required>
                         </div>
                     </div>
                     <button type="submit" class="btn-primary">
                         <i class="fa-solid fa-percent"></i> Calculate Debt Metrics
                     </button>
                 </form>
-                <div class="module-result" id="debt-result" style="display: none; line-height: 1.6; margin-top: 1.5rem;"></div>
+                <div class="module-result" id="debt-result"
+                    style="display: none; line-height: 1.6; margin-top: 1.5rem;"></div>
             </div>
         </div>
     </div>
@@ -336,27 +448,35 @@
                 <button class="modal-close" data-close="emergency-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="emergency-form">
+                <form id="emergency-form" novalidate>
                     <div class="form-grid-2">
                         <div class="form-group">
                             <label for="ef_rent">Monthly Housing / Rent (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="ef_rent" class="form-control" placeholder="e.g. 8000" min="0" step="0.01" value="0">
+                            <input type="number" id="ef_rent" class="form-control" placeholder="e.g. 8000" min="0"
+                                step="any" value="0">
                         </div>
                         <div class="form-group">
                             <label for="ef_food">Monthly Food & Groceries (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="ef_food" class="form-control" placeholder="e.g. 5000" min="0" step="0.01" value="0">
+                            <input type="number" id="ef_food" class="form-control" placeholder="e.g. 5000" min="0"
+                                step="any" value="0">
                         </div>
                         <div class="form-group">
-                            <label for="ef_transport">Monthly Transportation / Commuting (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="ef_transport" class="form-control" placeholder="e.g. 2000" min="0" step="0.01" value="0">
+                            <label for="ef_transport">Monthly Transportation / Commuting (<span
+                                    class="curr-symbol">₹</span>)</label>
+                            <input type="number" id="ef_transport" class="form-control" placeholder="e.g. 2000" min="0"
+                                step="any" value="0">
                         </div>
                         <div class="form-group">
-                            <label for="ef_bills">Monthly Essential Bills & Utilities (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="ef_bills" class="form-control" placeholder="e.g. 2000" min="0" step="0.01" value="0">
+                            <label for="ef_bills">Monthly Essential Bills & Utilities (<span
+                                    class="curr-symbol">₹</span>)</label>
+                            <input type="number" id="ef_bills" class="form-control" placeholder="e.g. 2000" min="0"
+                                step="any" value="0">
                         </div>
                         <div class="form-group">
-                            <label for="ef_current">Current Liquid Safety Savings (<span class="curr-symbol">₹</span>)</label>
-                            <input type="number" id="ef_current" class="form-control" placeholder="e.g. 10000" min="0" step="0.01" value="0">
+                            <label for="ef_current">Current Liquid Safety Savings (<span
+                                    class="curr-symbol">₹</span>)</label>
+                            <input type="number" id="ef_current" class="form-control" placeholder="e.g. 10000" min="0"
+                                step="any" value="0">
                         </div>
                         <div class="form-group">
                             <label for="ef_months">Safety Margin Coverage Target</label>
@@ -371,7 +491,8 @@
                         <i class="fa-solid fa-vault"></i> Run Coverage Analysis
                     </button>
                 </form>
-                <div class="module-result" id="emergency-result" style="display: none; line-height: 1.6; margin-top: 1.5rem;"></div>
+                <div class="module-result" id="emergency-result"
+                    style="display: none; line-height: 1.6; margin-top: 1.5rem;"></div>
             </div>
         </div>
     </div>
@@ -385,8 +506,10 @@
             </div>
             <div class="modal-body">
                 <div class="goals-section-header">
-                    <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Track progress toward your target financial goals</p>
-                    <button class="btn-primary" id="btn-open-add-goal" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                    <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Track progress toward your
+                        target financial goals</p>
+                    <button class="btn-primary" id="btn-open-add-goal"
+                        style="padding: 0.5rem 1rem; font-size: 0.85rem;">
                         <i class="fa-solid fa-plus"></i> New Goal
                     </button>
                 </div>
@@ -405,18 +528,23 @@
                 <button class="modal-close" data-close="add-goal-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="goal-form">
+                <form id="goal-form" novalidate>
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="goal_title">Goal Description Name <span style="color: var(--accent-danger);">*</span></label>
-                        <input type="text" id="goal_title" class="form-control" placeholder="e.g. Vacation fund, Car down payment" required>
+                        <label for="goal_title">Goal Description Name <span
+                                style="color: var(--accent-danger);">*</span></label>
+                        <input type="text" id="goal_title" class="form-control"
+                            placeholder="e.g. Vacation fund, Car down payment" required>
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="goal_target">Target Savings Goal (<span class="curr-symbol">₹</span>) <span style="color: var(--accent-danger);">*</span></label>
-                        <input type="number" id="goal_target" class="form-control" placeholder="e.g. 50000" min="1" step="0.01" required>
+                        <label for="goal_target">Target Savings Goal (<span class="curr-symbol">₹</span>) <span
+                                style="color: var(--accent-danger);">*</span></label>
+                        <input type="number" id="goal_target" class="form-control" placeholder="e.g. 50000" min="0"
+                            step="any" required>
                     </div>
                     <div class="form-group" style="margin-bottom: 1.25rem;">
                         <label for="goal_current">Existing Capital Saved (<span class="curr-symbol">₹</span>)</label>
-                        <input type="number" id="goal_current" class="form-control" placeholder="e.g. 5000" min="0" step="0.01" value="0">
+                        <input type="number" id="goal_current" class="form-control" placeholder="e.g. 5000" min="0"
+                            step="any" value="0">
                     </div>
                     <div class="modal-actions">
                         <button type="button" class="btn-secondary" id="btn-cancel-goal-modal">Cancel</button>
@@ -437,15 +565,18 @@
             <div class="modal-body">
                 <div class="goals-section-header">
                     <div>
-                        <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Logs and filters all financial income and expenditures</p>
+                        <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">Logs and filters all
+                            financial income and expenditures</p>
                     </div>
                     <div style="display: flex; gap: 0.75rem; align-items: center;">
-                        <select id="activity-filter-type" class="form-control" style="width: 140px; padding: 0.35rem 0.75rem; font-size: 0.85rem; height: auto;">
+                        <select id="activity-filter-type" class="form-control"
+                            style="width: 140px; padding: 0.35rem 0.75rem; font-size: 0.85rem; height: auto;">
                             <option value="all">All Entries</option>
                             <option value="income">Income Only</option>
                             <option value="expense">Expenses Only</option>
                         </select>
-                        <button class="btn-primary" id="btn-open-add-activity" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                        <button class="btn-primary" id="btn-open-add-activity"
+                            style="padding: 0.5rem 1rem; font-size: 0.85rem;">
                             <i class="fa-solid fa-plus"></i> Add Entry
                         </button>
                     </div>
@@ -453,7 +584,8 @@
                 <div class="table-responsive" style="margin-top: 1rem;">
                     <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
                         <thead>
-                            <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem;">
+                            <tr
+                                style="border-bottom: 2px solid var(--border-color); color: var(--text-secondary); font-size: 0.85rem;">
                                 <th style="padding: 0.75rem;">Description</th>
                                 <th style="padding: 0.75rem;">Category</th>
                                 <th style="padding: 0.75rem;">Type</th>
@@ -478,7 +610,7 @@
                 <button class="modal-close" data-close="add-activity-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="activity-form">
+                <form id="activity-form" novalidate>
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <label>Entry Type</label>
                         <div style="display: flex; gap: 1.5rem; margin-top: 0.25rem;">
@@ -486,17 +618,22 @@
                                 <input type="radio" name="act_type" value="income" required> <span>Income</span>
                             </label>
                             <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
-                                <input type="radio" name="act_type" value="expense" checked required> <span>Expense</span>
+                                <input type="radio" name="act_type" value="expense" checked required>
+                                <span>Expense</span>
                             </label>
                         </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="act_desc">Description Name <span style="color: var(--accent-danger);">*</span></label>
-                        <input type="text" id="act_desc" class="form-control" placeholder="e.g. Salary, Groceries, Electricity bill" required>
+                        <label for="act_desc">Description Name <span
+                                style="color: var(--accent-danger);">*</span></label>
+                        <input type="text" id="act_desc" class="form-control"
+                            placeholder="e.g. Salary, Groceries, Electricity bill" required>
                     </div>
                     <div class="form-group" style="margin-bottom: 1rem;">
-                        <label for="act_amount">Amount (<span class="curr-symbol">₹</span>) <span style="color: var(--accent-danger);">*</span></label>
-                        <input type="number" id="act_amount" class="form-control" placeholder="0.00" min="0.01" step="0.01" required>
+                        <label for="act_amount">Amount (<span class="curr-symbol">₹</span>) <span
+                                style="color: var(--accent-danger);">*</span></label>
+                        <input type="number" id="act_amount" class="form-control" placeholder="0.00" min="0.01"
+                            step="any" required>
                     </div>
                     <div class="form-group" style="margin-bottom: 1.5rem;">
                         <label for="act_category">Category</label>
@@ -521,5 +658,23 @@
 
     <!-- Application Script -->
     <script src="{{ url_for('static', filename='app.js') }}"></script>
+
+    <!-- Graph Modal -->
+    <div class="modal-overlay" id="graph-modal">
+        <div class="modal-content glass-card">
+            <div class="modal-header">
+                <h2><i class="fa-solid fa-chart-pie"></i> Yearly Financial Graph</h2>
+                <button class="close-modal-btn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="position: relative; height:40vh; width:100%">
+                <canvas id="yearlyChart"></canvas>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary close-modal-btn">Close</button>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>

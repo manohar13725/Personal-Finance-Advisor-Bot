@@ -1,6 +1,134 @@
 // WealthWise Personal Finance Dashboard - Client Application Logic
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Per-user data isolation
+    let currentUser = null;
+
+    function userKey(key) {
+        return currentUser ? `wealthwise_${currentUser}_${key}` : `wealthwise_${key}`;
+    }
+
+    // Authentication Logic
+    const authOverlay = document.getElementById('auth-overlay');
+    const mainAppContainer = document.getElementById('main-app-container');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const showRegisterLink = document.getElementById('show-register');
+    const showLoginLink = document.getElementById('show-login');
+    const authMessage = document.getElementById('auth-message');
+    const btnLogout = document.getElementById('btn-logout');
+
+    function showAuthMessage(msg, isSuccess=false) {
+        authMessage.textContent = msg;
+        authMessage.style.color = isSuccess ? 'var(--accent)' : 'var(--accent-danger)';
+        authMessage.style.display = 'block';
+    }
+
+    // Toggle forms
+    showRegisterLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+        authMessage.style.display = 'none';
+    });
+
+    showLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        registerForm.style.display = 'none';
+        loginForm.style.display = 'block';
+        authMessage.style.display = 'none';
+    });
+
+    // Check status on load
+    fetch('/api/auth/status')
+        .then(res => res.json())
+        .then(data => {
+            if (data.logged_in) {
+                currentUser = data.username;
+                authOverlay.style.display = 'none';
+                mainAppContainer.style.display = 'block';
+                loadUserData();
+            } else {
+                authOverlay.style.display = 'flex';
+                mainAppContainer.style.display = 'none';
+            }
+        });
+
+    // Handle Login
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value;
+        
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            
+            if (res.ok && data.success) {
+                currentUser = username;
+                authOverlay.style.display = 'none';
+                mainAppContainer.style.display = 'block';
+                loadUserData();
+            } else {
+                showAuthMessage(data.error || 'Login failed.');
+            }
+        } catch (err) {
+            showAuthMessage('Connection error.');
+        }
+    });
+
+    // Handle Register
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('register-username').value.trim();
+        const password = document.getElementById('register-password').value;
+        
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            
+            if (res.ok && data.success) {
+                currentUser = username;
+                authOverlay.style.display = 'none';
+                mainAppContainer.style.display = 'block';
+                loadUserData();
+            } else {
+                showAuthMessage(data.error || 'Registration failed.');
+            }
+        } catch (err) {
+            showAuthMessage('Connection error.');
+        }
+    });
+
+    // Handle Logout
+    if (btnLogout) {
+        btnLogout.addEventListener('click', async () => {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                currentUser = null;
+                // Reset UI to login state
+                authOverlay.style.display = 'flex';
+                mainAppContainer.style.display = 'none';
+                loginForm.reset();
+                registerForm.reset();
+                authMessage.style.display = 'none';
+                // Switch back to login view if it was on register
+                registerForm.style.display = 'none';
+                loginForm.style.display = 'block';
+            } catch (err) {
+                console.error('Logout error:', err);
+            }
+        });
+    }
+
     // Custom Step Logic — Exact +500 / -500 on ANY current value
     // Works for both keyboard arrow keys AND browser spinner button clicks
     const numInputPrevVals = new WeakMap();
@@ -66,21 +194,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // State management
     const state = {
-        currency: localStorage.getItem('wealthwise_currency') || 'INR',
-        currencySymbol: localStorage.getItem('wealthwise_symbol') || '₹'
+        currency: 'INR',
+        currencySymbol: '₹'
     };
 
     // Currency Selector Setup
     const currencySelect = document.getElementById('currency-select');
     if (currencySelect) {
-        currencySelect.value = state.currency;
         currencySelect.addEventListener('change', (e) => {
             const selectedOpt = currencySelect.options[currencySelect.selectedIndex];
             state.currency = selectedOpt.value;
             state.currencySymbol = selectedOpt.getAttribute('data-symbol') || selectedOpt.value;
             
-            localStorage.setItem('wealthwise_currency', state.currency);
-            localStorage.setItem('wealthwise_symbol', state.currencySymbol);
+            localStorage.setItem(userKey('currency'), state.currency);
+            localStorage.setItem(userKey('symbol'), state.currencySymbol);
             
             updateCurrencyLabels();
         });
@@ -93,24 +220,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     updateCurrencyLabels();
 
-    // Pre-populate previously entered advisor details if present in LocalStorage
-    const savedIncome = localStorage.getItem('wealthwise_income');
-    const savedExpenses = localStorage.getItem('wealthwise_expenses');
-    if (savedIncome) {
-        document.getElementById('income_input').value = savedIncome;
-    }
-    if (savedExpenses) {
-        try {
-            const expObj = JSON.parse(savedExpenses);
-            document.querySelectorAll('.expense-input').forEach(input => {
-                const cat = input.getAttribute('data-category');
-                if (expObj[cat] !== undefined) {
-                    input.value = expObj[cat];
-                }
-            });
-        } catch (e) {
-            console.error("Failed to parse saved expenses from local storage", e);
+    // Load all user-specific data from localStorage after login
+    function loadUserData() {
+        // Load currency preference
+        state.currency = localStorage.getItem(userKey('currency')) || 'INR';
+        state.currencySymbol = localStorage.getItem(userKey('symbol')) || '₹';
+        if (currencySelect) currencySelect.value = state.currency;
+        updateCurrencyLabels();
+
+        // Pre-populate previously entered advisor details
+        const savedIncome = localStorage.getItem(userKey('income'));
+        const savedExpenses = localStorage.getItem(userKey('expenses'));
+        document.getElementById('income_input').value = savedIncome || '';
+        document.querySelectorAll('.expense-input').forEach(input => input.value = '');
+        if (savedExpenses) {
+            try {
+                const expObj = JSON.parse(savedExpenses);
+                document.querySelectorAll('.expense-input').forEach(input => {
+                    const cat = input.getAttribute('data-category');
+                    if (expObj[cat] !== undefined) {
+                        input.value = expObj[cat];
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to parse saved expenses from local storage", e);
+            }
         }
+
+        // Load goals
+        try {
+            goalsList = JSON.parse(localStorage.getItem(userKey('goals')));
+        } catch(e) {
+            goalsList = null;
+        }
+        goalsList = goalsList || [];
+
+        // Load activities
+        try {
+            activitiesList = JSON.parse(localStorage.getItem(userKey('activities')));
+        } catch(e) {
+            activitiesList = null;
+        }
+        activitiesList = activitiesList || [];
+
+        // Hide results section on fresh login
+        if (resultsSection) resultsSection.style.display = 'none';
+        if (feedbackZone) feedbackZone.style.display = 'none';
     }
 
     // UI Elements
@@ -347,10 +502,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                // Save details globally
-                localStorage.setItem('wealthwise_has_details', 'true');
-                localStorage.setItem('wealthwise_income', incomeVal.toString());
-                localStorage.setItem('wealthwise_expenses', JSON.stringify(expensesObj));
+                // Save details per user
+                localStorage.setItem(userKey('has_details'), 'true');
+                localStorage.setItem(userKey('income'), incomeVal.toString());
+                localStorage.setItem(userKey('expenses'), JSON.stringify(expensesObj));
 
                 // Render results dynamically and scroll to section
                 renderResults(data);
@@ -708,16 +863,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------
     // Savings Goals System
     // -------------------------------------------------------------
-    let goalsList;
-    try {
-        goalsList = JSON.parse(localStorage.getItem('wealthwise_goals'));
-    } catch (e) {
-        goalsList = null;
-    }
-    goalsList = goalsList || [
-        { id: 1, title: '6-Month Emergency Fund', target: 150000, current: 85000 },
-        { id: 2, title: 'House Down Payment', target: 400000, current: 120000 }
-    ];
+    let goalsList = [];
 
     const goalsGridBox = document.getElementById('goals-grid-box');
     const btnOpenAddGoal = document.getElementById('btn-open-add-goal');
@@ -765,7 +911,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const id = parseInt(btn.getAttribute('data-id'));
                 goalsList = goalsList.filter(g => g.id !== id);
-                localStorage.setItem('wealthwise_goals', JSON.stringify(goalsList));
+                localStorage.setItem(userKey('goals'), JSON.stringify(goalsList));
                 renderGoalsList();
             });
         });
@@ -785,7 +931,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 title, target, current
             });
 
-            localStorage.setItem('wealthwise_goals', JSON.stringify(goalsList));
+            localStorage.setItem(userKey('goals'), JSON.stringify(goalsList));
             goalForm.reset();
             addGoalModal.classList.remove('active');
             renderGoalsList();
@@ -795,17 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // -------------------------------------------------------------
     // Activity / Transaction Tracker System
     // -------------------------------------------------------------
-    let activitiesList;
-    try {
-        activitiesList = JSON.parse(localStorage.getItem('wealthwise_activities'));
-    } catch(e) {
-        activitiesList = null;
-    }
-    activitiesList = activitiesList || [
-        { id: 1, type: 'income', desc: 'Monthly Salary', amount: 52000.00, category: 'Salary', date: '2026-08-01' },
-        { id: 2, type: 'expense', desc: 'Apartment Rent', amount: 16000.00, category: 'Housing', date: '2026-08-02' },
-        { id: 3, type: 'expense', desc: 'Groceries Store', amount: 4500.00, category: 'Food & Dining', date: '2026-08-04' }
-    ];
+    let activitiesList = [];
 
     const activityRows = document.getElementById('activity-rows');
     const filterTypeDropdown = document.getElementById('activity-filter-type');
@@ -860,7 +996,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const id = parseInt(btn.getAttribute('data-id'));
                 activitiesList = activitiesList.filter(act => act.id !== id);
-                localStorage.setItem('wealthwise_activities', JSON.stringify(activitiesList));
+                localStorage.setItem(userKey('activities'), JSON.stringify(activitiesList));
                 renderActivitiesList();
             });
         });
@@ -885,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 date: new Date().toISOString().split('T')[0]
             });
 
-            localStorage.setItem('wealthwise_activities', JSON.stringify(activitiesList));
+            localStorage.setItem(userKey('activities'), JSON.stringify(activitiesList));
             activityForm.reset();
             addActivityModal.classList.remove('active');
             renderActivitiesList();
